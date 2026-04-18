@@ -1,40 +1,42 @@
-package com.example.vault.presentation.presentation.splashScreen
+package com.example.vault.presentation.splashScreen
 
 
-import android.widget.ProgressBar
 import android.window.SplashScreen
+import android.window.SplashScreenView
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
-import androidx.compose.material3.Typography
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierInfo
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.ui.R
 import com.example.ui.theme.PrimaryColor
 import com.example.ui.theme.TextSecondaryColor
 import com.fortress.ui.theme.PassVaultTypography
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 
 @Composable
-fun SplashScreen() {
+fun SplashScreen (
+    viewModel: SplashViewModel
+) {
+    val uiState by viewModel.progressState.collectAsStateWithLifecycle()
+
     Column(
         modifier = Modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -68,27 +70,31 @@ fun SplashScreen() {
         Spacer(modifier = Modifier.weight(1f))
 
         LinearProgressIndicator(
-            progress = 0.3f,
-            color = PrimaryColor,
+            progress = { uiState.currentValue },
             modifier = Modifier
-                .padding(bottom = 70.dp)
+                .padding(bottom = 70.dp),
+            color = PrimaryColor,
+            trackColor = ProgressIndicatorDefaults.linearTrackColor,
+            strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
         )
 
 
         Image(
             painter = painterResource(R.drawable.security_badge),
-            contentDescription = "Aes-256",
+            contentDescription = null,
             modifier = Modifier.padding(bottom = 50.dp)
         )
 
 
     }
 }
-
-@Preview
+@Preview(showBackground = true, name = "SplashScreen")
 @Composable
-fun SplashScreenPreview() {
-    SplashScreen()
+fun PreviewSplashScreen(){
+
 }
+
+
+
 
 
