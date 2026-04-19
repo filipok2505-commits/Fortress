@@ -37,6 +37,7 @@ android {
 
 dependencies {
     implementation(project(":core:ui"))
+    implementation(project(":core:database"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.runtime.android)

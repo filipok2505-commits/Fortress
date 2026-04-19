@@ -10,5 +10,5 @@ data class Vault(
     val userName: String,
     val password: String,
     val notes: String,
-    val createdAtMillis: Long
+    val createdAtMillis: Long,
 )
