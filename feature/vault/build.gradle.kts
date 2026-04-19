@@ -38,6 +38,7 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:database"))
+    implementation(project(":core:crypto"))
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.runtime.android)

@@ -15,10 +15,10 @@ interface VaultDao {
     fun getAllVaults(): Flow<List<VaultEntity>>
 
     @Query("SELECT * FROM vaults WHERE id = :id")
-    fun getVaultById(id: Long): VaultEntity?
+    suspend fun getVaultById(id: Long): VaultEntity?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(vault: VaultEntity)
+    suspend fun insert(vault: VaultEntity): Long
 
     @Update
     suspend fun update(vault: VaultEntity)

@@ -15,19 +15,15 @@ class CryptoModule {
 
     @Provides
     @Singleton
-    fun provideCryptoRepository(): CryptoRepository {
-        return CryptoRepositoryImpl()
-    }
+    fun provideKeyManager(): KeyManager = KeyManagerImpl()
 
     @Provides
     @Singleton
-    fun provideKeyManager(): KeyManager {
-        return KeyManagerImpl()
-    }
+    fun provideKeyDerivation(): KeyDerivation = Pbkdf2KeyDerivationImpl()
 
     @Provides
     @Singleton
-    fun provideKeyDerivation(): KeyDerivation {
-        return Pbkdf2KeyDerivationImpl()
+    fun provideCryptoRepository(keyManager: KeyManagerImpl): CryptoRepository {
+        return CryptoRepositoryImpl(keyManager)
     }
 }

@@ -14,3 +14,19 @@ fun VaultEntity.toDomain(decryptedPassword: String): Vault{
         createdAtMillis = this.createdAt
     )
 }
+
+fun Vault.fromDomain(
+    encryptedPassword: ByteArray,
+    initVector: ByteArray
+): VaultEntity {
+    return VaultEntity(
+        id = this.id,
+        appTitle = this.appTitle,
+        url = this.url,
+        userName = this.userName,
+        encryptedPassword = encryptedPassword,
+        initVector = initVector,
+        notes = this.notes,
+        createdAt = this.createdAtMillis
+    )
+}
