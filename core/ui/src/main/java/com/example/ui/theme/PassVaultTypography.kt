@@ -11,8 +11,8 @@ val PassVaultTypography = Typography(
     displayLarge = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Bold,
-        fontSize = 40.sp,
-        lineHeight = 32.sp,
+        fontSize = 24.sp,
+        lineHeight = 28.8.sp,
         letterSpacing = 0.sp
     ),
 
@@ -20,8 +20,8 @@ val PassVaultTypography = Typography(
     displayMedium = TextStyle(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 28.sp,
+        fontSize = 20.sp,
+        lineHeight = 26.sp,
         letterSpacing = 0.sp
     ),
 
@@ -39,7 +39,7 @@ val PassVaultTypography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 14.sp,
-        lineHeight = 20.sp,
+        lineHeight = 21.sp,
         letterSpacing = 0.25.sp
     ),
 
@@ -48,7 +48,7 @@ val PassVaultTypography = Typography(
         fontFamily = FontFamily.Default,
         fontWeight = FontWeight.Normal,
         fontSize = 12.sp,
-        lineHeight = 16.sp,
+        lineHeight = 18.sp,
         letterSpacing = 0.4.sp
     )
 )

@@ -8,10 +8,13 @@ import com.example.crypto.domain.repository.KeyDerivation
 import com.example.crypto.domain.repository.KeyManager
 import dagger.Module
 import dagger.Provides
-import jakarta.inject.Singleton
+import dagger.hilt.InstallIn
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-class CryptoModule {
+@InstallIn(SingletonComponent::class)
+object CryptoModule {
 
     @Provides
     @Singleton
@@ -23,7 +26,10 @@ class CryptoModule {
 
     @Provides
     @Singleton
-    fun provideCryptoRepository(keyManager: KeyManagerImpl): CryptoRepository {
+    fun provideCryptoRepository(
+        keyManager: KeyManagerImpl
+    ): CryptoRepository {
+
         return CryptoRepositoryImpl(keyManager)
     }
 }
