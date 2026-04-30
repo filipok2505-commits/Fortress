@@ -69,7 +69,9 @@ class VaultRepositoryImpl @Inject constructor(
         vaultDao.update(entity)
     }
 
-    override suspend fun deleteVault(vault: Vault) = withContext(dispatchers.io) {
-        vaultDao.deleteById(vault.id)
+    override suspend fun deleteVault(id: Long) = withContext(dispatchers.io) {
+        vaultDao.deleteById(id)
     }
+
+
 }

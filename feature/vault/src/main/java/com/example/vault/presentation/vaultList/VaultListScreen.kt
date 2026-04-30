@@ -1,5 +1,6 @@
 package com.example.vault.presentation.vaultList
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,6 +24,7 @@ import com.example.ui.R
 import com.example.ui.theme.TextSecondaryColor
 import com.fortress.ui.theme.PassVaultTypography
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -31,101 +33,25 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.ui.theme.Border
+import com.example.ui.theme.Success
+import com.example.ui.theme.SurfaceColor
+import com.example.ui.theme.TextPrimaryColor
 import com.example.vault.domain.model.Vault
+import com.example.vault.presentation.components.SortBlocks
 
-@Composable
-fun VaultListScreen(
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-    ) {
-        Spacer(modifier = Modifier.padding(16.dp))
-
-        GreetingHeader()
-    }
-
-}
-
-@Composable
-@Preview(showBackground = true)
-fun PreviewVaultScreen() {
-
-}
-
-@Composable
-fun GreetingHeader(){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column {
-
-            Text(
-                text = stringResource(R.string.Welcome),
-                style = PassVaultTypography.displayMedium,
-                color = TextSecondaryColor
-            )
-
-            Text(
-                text = /*stringResource(R.string.Helo)*/("Hello, "),
-                style = PassVaultTypography.displayLarge
-            )
-
-        }
-
-        Spacer(modifier = Modifier.weight(1f))
-
-        Box(modifier = Modifier.size(44.dp)) {
-            Icon(
-                painter = painterResource(R.drawable.outline_circle_24),
-                contentDescription = null,
-                modifier = Modifier.fillMaxSize()
-            )
-            Icon(
-                painter = painterResource(R.drawable.filled_circle),
-                contentDescription = null,
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .size(12.dp),
-                tint = Color.Green
-
-            )
-        }
-    }
-}
-
-@Composable
-@Preview
-fun VaultPreviewGpt(){
-    VaultListRoute()
-}
-
-@Composable
-fun VaultListRoute(
-    viewModel: VaultListViewModel = hiltViewModel(),
-    onAddClick: () -> Unit = {},
-    onItemClick: (Vault) -> Unit = {}
-) {
-    val state by viewModel.uiState.collectAsState()
-
-    VaultListScreen(
-        state = state,
-        onEvent = viewModel::onEvent,
-        onAddClick = onAddClick,
-        onItemClick = onItemClick
-    )
-}
 
 @Composable
 fun VaultListScreen(
@@ -136,73 +62,109 @@ fun VaultListScreen(
 ) {
     Scaffold(
         containerColor = Color(0xFFF6F7FB),
+        topBar = { TopBarVault() },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddClick,
-                containerColor = Color(0xFF5B4CF0)
+                onClick = onAddClick, containerColor = Color(0xFF5B4CF0)
             ) {
                 Icon(Icons.Rounded.Add, contentDescription = null, tint = Color.White)
             }
         },
-        bottomBar = { VaultBottomBar() }
-    ) { padding ->
+        bottomBar = { VaultBottomBar() },
+        contentWindowInsets = WindowInsets(0, 0, 0, 0)
+    ) { paddingValues ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 20.dp)
+                .padding(paddingValues)
         ) {
-
-            Spacer(Modifier.height(20.dp))
-
-            Header()
-
-            Spacer(Modifier.height(20.dp))
 
             SearchBar(
                 query = state.searchQuery,
-                onQueryChange = {
-                    onEvent(VaultEvent.SearchEntries(it))
+                onQueryChange = { onEvent(VaultEvent.SearchEntries(it)) }
+            )
+            CategoriesRow(
+                selectedCategory = state.selectedCategory,
+                onCategorySelected = { category ->
+                    onEvent(VaultEvent.SortEntries(VaultEvent.SortType.BY_TITLE_ASC))
                 }
             )
 
-            Spacer(Modifier.height(24.dp))
 
-            Text(
-                text = "RECENT ITEMS",
-                style = MaterialTheme.typography.labelMedium,
-                color = Color(0xFF7D8AA5),
-                fontWeight = FontWeight.Bold
-            )
+            
 
-            Spacer(Modifier.height(12.dp))
 
-            if (state.isLoading) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
-                }
-            } else {
-                LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(14.dp),
-                    contentPadding = PaddingValues(bottom = 100.dp)
-                ) {
-                    items(
-                        items = state.vaults,
-                        key = { it.id }
-                    ) { vault ->
+        }
+    }
+}
 
-                        VaultItem(
-                            vault = vault,
-                            onClick = { onItemClick(vault) },
-                            onDelete = {
-                                onEvent(VaultEvent.DeleteEntry(vault.id))
-                            }
+@Composable
+private fun TopBarVault() {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(108.dp)
+            .padding(horizontal = 24.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column {
+                Text(
+                    text = stringResource(R.string.Welcome),
+                    style = PassVaultTypography.bodyMedium,
+                    color = TextSecondaryColor
+                )
+
+                Text(
+                    text = stringResource(R.string.Hello) + (", BlogTriggers"),
+                    style = TextStyle(
+                        fontFamily = FontFamily.Default,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 24.sp,
+                        lineHeight = 32.sp,
+                        letterSpacing = 0.sp
+                    ),
+                    color = TextPrimaryColor
+                )
+            }
+            Box(
+                modifier = Modifier.size(48.dp)
+            ) {
+
+                Image(
+                    painter = painterResource(R.drawable.user_avatar),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(44.dp)
+                        .align(Alignment.Center)
+                        .clip(CircleShape)
+                        .border(
+                            width = 2.dp, color = Border, shape = CircleShape
                         )
-                    }
+                        .padding(1.dp)
+                        .clip(CircleShape)
+                )
+
+                Box(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .offset(x = (-1).dp, y = (-1).dp)
+                        .size(12.dp)
+                        .clip(CircleShape)
+                        .background(SurfaceColor)
+                        .padding(2.dp)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape)
+                            .background(Success)
+                    )
                 }
             }
         }
@@ -210,116 +172,97 @@ fun VaultListScreen(
 }
 
 @Composable
-private fun Header() {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-
-        Column(modifier = Modifier.weight(1f)) {
-
-            Text(
-                text = "Welcome back,",
-                color = Color(0xFF7D8AA5)
-            )
-
-            Text(
-                text = "Hello, BlogTriggers",
-                style = MaterialTheme.typography.headlineMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
-
-        Box(
-            modifier = Modifier
-                .size(46.dp)
-                .clip(CircleShape)
-                .background(Color(0xFFE3E8FF)),
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(Icons.Outlined.Person, null)
-        }
-    }
-}
-
-@Composable
-private fun SearchBar(
+fun SearchBar(
     query: String,
-    onQueryChange: (String) -> Unit
+    onQueryChange: (String) -> Unit,
 ) {
-    Row(verticalAlignment = Alignment.CenterVertically) {
-
-        OutlinedTextField(
-            value = query,
-            onValueChange = onQueryChange,
-            modifier = Modifier.weight(1f),
-            placeholder = { Text("Search vault...") },
-            leadingIcon = {
-                Icon(Icons.Outlined.Search, null)
-            },
-            shape = RoundedCornerShape(24.dp),
-            singleLine = true
-        )
-
-        Spacer(Modifier.width(12.dp))
-
-        IconButton(onClick = {}) {
-            Icon(painter = painterResource(R.drawable.tune_google), null)
-        }
-    }
-}
-
-@Composable
-private fun VaultItem(
-    vault: Vault,
-    onClick: () -> Unit,
-    onDelete: () -> Unit
-) {
-    ElevatedCard(
+    Box(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
-        shape = RoundedCornerShape(22.dp),
-        colors = CardDefaults.elevatedCardColors(
-            containerColor = Color.White
-        )
+            .height(70.dp), contentAlignment = Alignment.TopStart
+
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp),
-            verticalAlignment = Alignment.CenterVertically
+                .height(46.dp)
+                .align(Alignment.TopCenter)
+                .padding(horizontal = 24.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-
-            Box(
-                modifier = Modifier
-                    .size(50.dp)
-                    .clip(RoundedCornerShape(14.dp))
-                    .background(Color(0xFFF1F4FA)),
-                contentAlignment = Alignment.Center
-            ) {
-                Icon(painter = painterResource(R.drawable.shield_google), null)
-            }
-
-            Spacer(Modifier.width(14.dp))
-
-            Column(
-                modifier = Modifier.weight(1f)
-            ) {
-                Text(
-                    text = vault.appTitle,
-                    fontWeight = FontWeight.Bold
+            OutlinedTextField(
+                value = query,
+                onValueChange = onQueryChange,
+                modifier = Modifier.weight(1f),
+                placeholder = {
+                    Text(
+                        "Search vault...",
+                        color = TextSecondaryColor,
+                        style = PassVaultTypography.bodyMedium
+                    )
+                },
+                leadingIcon = {
+                    Icon(
+                        Icons.Outlined.Search,
+                        contentDescription = "Search",
+                        tint = TextSecondaryColor
+                    )
+                },
+                shape = RoundedCornerShape(24.dp),
+                singleLine = true,
+                colors = OutlinedTextFieldDefaults.colors(
+                    focusedBorderColor = Border,
+                    unfocusedBorderColor = Border,
+                    focusedTextColor = TextPrimaryColor,
+                    unfocusedTextColor = TextPrimaryColor,
+                    cursorColor = TextPrimaryColor
                 )
+            )
 
-                Text(
-                    text = vault.userName,
-                    color = Color(0xFF7D8AA5)
+            IconButton(
+                onClick = {}, modifier = Modifier
+                    .size(44.dp)
+                    .clip(CircleShape)
+                    .border(
+                        width = 1.dp, color = Border, shape = CircleShape
+                    )
+                    .padding(2.dp)
+                    .clip(CircleShape)
+            ) {
+                Icon(
+                    painter = painterResource(R.drawable.tune_google),
+                    contentDescription = "Filter",
+                    tint = TextSecondaryColor
                 )
             }
+        }
+    }
+}
 
-            IconButton(onClick = {}) {
-                Icon(painter = painterResource( R.drawable.visibility_google), null)
-            }
+@Composable
+fun CategoriesRow(
+    selectedCategory: String,
+    onCategorySelected: (String) -> Unit
+) {
+    val categories = listOf("All Passwords", "Work", "Finance", "Social")
 
-            IconButton(onClick = {}) {
-                Icon(painter = painterResource(R.drawable.content_copy_google), null)
+    Box(
+     modifier = Modifier.height(34.dp)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 24.dp, end = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+
+        ) {
+            categories.forEach { category ->
+                SortBlocks(
+                    text = category,
+                    isSelected = selectedCategory == category,
+                    onClick = { onCategorySelected(category) }
+                )
             }
         }
     }
@@ -333,35 +276,49 @@ private fun VaultBottomBar() {
             selected = false,
             onClick = {},
             icon = { Icon(Icons.Outlined.Home, null) },
-            label = { Text("Home") }
-        )
+            label = { Text("Home") })
 
         NavigationBarItem(
             selected = true,
             onClick = {},
-            icon = { Icon( painter = painterResource(R.drawable.shield_google), null) },
-            label = { Text("Vault") }
-        )
+            icon = { Icon(painter = painterResource(R.drawable.shield_google), null) },
+            label = { Text("Vault") })
 
         NavigationBarItem(
             selected = false,
             onClick = {},
-            icon = { Icon(  painter = painterResource(R.drawable.shield_google), null) },
-            label = { Text("Generator") }
-        )
+            icon = { Icon(painter = painterResource(R.drawable.key_vertical_google), null) },
+            label = { Text("Generator") })
 
         NavigationBarItem(
             selected = false,
             onClick = {},
-            icon = { Icon( painter = painterResource(R.drawable.security_google), null) },
-            label = { Text("Security") }
-        )
+            icon = { Icon(painter = painterResource(R.drawable.security_google), null) },
+            label = { Text("Security") })
 
         NavigationBarItem(
             selected = false,
             onClick = {},
             icon = { Icon(Icons.Outlined.Settings, null) },
-            label = { Text("Settings") }
-        )
+            label = { Text("Settings") })
     }
 }
+
+@Preview(showBackground = true, name = "Empty State")
+@Composable
+private fun PreviewVaultListScreen_Empty() {
+    val fakeState = VaultListUiState(
+        vaults = emptyList(),
+        isLoading = false,
+        searchQuery = "",
+        selectedCategory = "All Passwords"
+    )
+
+    VaultListScreen(
+        state = fakeState,
+        onEvent = {},
+        onAddClick = {},
+        onItemClick = {}
+    )
+}
+

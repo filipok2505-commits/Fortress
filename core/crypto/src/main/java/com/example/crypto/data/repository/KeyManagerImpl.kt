@@ -6,8 +6,9 @@ import com.example.crypto.domain.repository.KeyManager
 import java.security.KeyStore
 import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
+import javax.inject.Inject
 
-class KeyManagerImpl: KeyManager {
+class KeyManagerImpl @Inject constructor() : KeyManager {
 
     companion object {
         private const val ANDROID_KEY_STORE = "AndroidKeyStore"

@@ -13,5 +13,5 @@ interface VaultRepository {
 
     suspend fun updateVault(vault: Vault)
 
-    suspend fun deleteVault(vault: Vault)
+    suspend fun deleteVault(id: Long)
 }

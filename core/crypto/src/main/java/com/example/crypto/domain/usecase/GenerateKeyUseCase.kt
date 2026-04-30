@@ -7,7 +7,6 @@ import javax.inject.Inject
 class GenerateKeyUseCase @Inject constructor(
     private val keyManager: KeyManager
 ) {
-
     operator fun invoke(alias: String): SecretKey {
         return keyManager.getOrCreateKey(alias)
     }

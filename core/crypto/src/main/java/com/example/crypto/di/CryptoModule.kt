@@ -6,30 +6,27 @@ import com.example.crypto.data.repository.Pbkdf2KeyDerivationImpl
 import com.example.crypto.domain.repository.CryptoRepository
 import com.example.crypto.domain.repository.KeyDerivation
 import com.example.crypto.domain.repository.KeyManager
+import dagger.Binds
 import dagger.Module
-import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object CryptoModule {
+abstract class CryptoModule {
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideKeyManager(): KeyManager = KeyManagerImpl()
+    abstract fun provideKeyManager(impl: KeyManagerImpl): KeyManager
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideKeyDerivation(): KeyDerivation = Pbkdf2KeyDerivationImpl()
+    abstract fun provideKeyDerivation(impl: Pbkdf2KeyDerivationImpl): KeyDerivation
 
-    @Provides
+    @Binds
     @Singleton
-    fun provideCryptoRepository(
-        keyManager: KeyManagerImpl
-    ): CryptoRepository {
-
-        return CryptoRepositoryImpl(keyManager)
-    }
+    abstract fun provideCryptoRepository(
+        impl: CryptoRepositoryImpl
+    ): CryptoRepository
 }

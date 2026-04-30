@@ -7,18 +7,15 @@ import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
 import javax.crypto.spec.SecretKeySpec
 
-class Pbkdf2KeyDerivationImpl: KeyDerivation {
+class Pbkdf2KeyDerivationImpl : KeyDerivation {
     override fun deriveKeyFromPassword(
-        password: CharArray,
-        salt: ByteArray,
-        iterations: Int,
-        keyLength: Int
+        password: CharArray, salt: ByteArray, iterations: Int, keyLength: Int
     ): SecretKey {
 
-        val keySpec = PBEKeySpec(password, salt,iterations,keyLength)
+        val keySpec = PBEKeySpec(password, salt, iterations, keyLength)
         val keyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA256")
         val secret = keyFactory.generateSecret(keySpec)
-        return SecretKeySpec(secret.encoded,"AES")
+        return SecretKeySpec(secret.encoded, "AES")
 
     }
 

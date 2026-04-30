@@ -7,7 +7,6 @@ import javax.inject.Inject
 class DecryptUseCase @Inject constructor(
     private val cryptoRepository: CryptoRepository
 ) {
-
     operator fun invoke(encryptedData: EncryptedData): ByteArray {
         return cryptoRepository.decrypt(encryptedData)
     }

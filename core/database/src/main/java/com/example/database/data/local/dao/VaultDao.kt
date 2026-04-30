@@ -27,5 +27,4 @@ interface VaultDao {
     suspend fun deleteById(id: Long)
 
 
-
 }

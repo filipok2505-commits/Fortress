@@ -7,7 +7,6 @@ import javax.inject.Inject
 class EncryptUseCase @Inject constructor(
     private val cryptoRepository: CryptoRepository
 ) {
-
     operator fun invoke(plaintext: ByteArray): EncryptedData{
         return cryptoRepository.encrypt(plaintext)
     }

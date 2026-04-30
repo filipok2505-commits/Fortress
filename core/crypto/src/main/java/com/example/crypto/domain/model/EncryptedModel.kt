@@ -1,9 +1,8 @@
 package com.example.crypto.domain.model
 
-data class EncryptedData (
-    val encryptedBytes: ByteArray,
-    val initializationVector: ByteArray
-){
+data class EncryptedData(
+    val encryptedBytes: ByteArray, val initializationVector: ByteArray
+) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

@@ -15,8 +15,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.fortress.ui.theme.FortressTheme
 import com.example.vault.presentation.splashScreen.SplashScreen
-import com.example.vault.presentation.vaultList.VaultListRoute
+
 import com.example.vault.presentation.vaultList.VaultListScreen
+import com.example.vault.presentation.vaultList.VaultListUiState
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -34,7 +35,15 @@ class MainActivity : ComponentActivity() {
                         onTimeout = { showSplash = false }
                     )
                 } else {
-                    VaultListRoute()
+                    VaultListScreen(
+                        state = VaultListUiState(
+                            vaults = emptyList(),
+                            searchQuery = ""
+                        ),
+                        onEvent = {},
+                        onAddClick = {},
+                        onItemClick = {}
+                    )
                 }
             }
         }
