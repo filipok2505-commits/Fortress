@@ -3,7 +3,7 @@ package com.example.vault.data.mapper
 import com.example.database.data.local.entity.VaultEntity
 import com.example.vault.domain.model.Vault
 
-fun VaultEntity.toDomain(decryptedPassword: String): Vault{
+fun VaultEntity.toDomain(decryptedPassword: String): Vault {
     return Vault(
         id = this.id,
         appTitle = this.appTitle,
@@ -16,8 +16,7 @@ fun VaultEntity.toDomain(decryptedPassword: String): Vault{
 }
 
 fun Vault.fromDomain(
-    encryptedPassword: ByteArray,
-    initVector: ByteArray
+    encryptedPassword: ByteArray, initVector: ByteArray
 ): VaultEntity {
     return VaultEntity(
         id = this.id,

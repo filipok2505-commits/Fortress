@@ -30,6 +30,8 @@ sealed class VaultEvent {
 
     object ClearSearch : VaultEvent()
 
+    data class TogglePasswordVisibility(val id: Long) : VaultEvent()
+
     enum class SortType {
         BY_TITLE_ASC, BY_TITLE_DESC, BY_DATE_ASC, BY_DATE_DESC
     }

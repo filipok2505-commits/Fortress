@@ -4,18 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,9 +24,11 @@ import com.example.ui.theme.TextSecondaryColor
 import com.fortress.ui.theme.PassVaultTypography
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -37,49 +38,63 @@ import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
-
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.ui.theme.Border
+import com.example.ui.theme.PrimaryColor
 import com.example.ui.theme.Success
 import com.example.ui.theme.SurfaceColor
 import com.example.ui.theme.TextPrimaryColor
-import com.example.vault.domain.model.Vault
+import com.example.vault.presentation.components.BottomNavigationBar
+import com.example.vault.presentation.components.PasswordCard
 import com.example.vault.presentation.components.SortBlocks
+import com.example.vault.presentation.vaultList.model.PasswordCardUi
 
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
 fun VaultListScreen(
     state: VaultListUiState,
     onEvent: (VaultEvent) -> Unit,
     onAddClick: () -> Unit,
-    onItemClick: (Vault) -> Unit
+    onItemClick: (PasswordCardUi) -> Unit,
+    onEyeClick: (PasswordCardUi) -> Unit,
+    onCopyClick: (PasswordCardUi) -> Unit,
+    onBottomNavClick: (String) -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    var title by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+
     Scaffold(
-        containerColor = Color(0xFFF6F7FB),
+        containerColor = SurfaceColor,
         topBar = { TopBarVault() },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = onAddClick, containerColor = Color(0xFF5B4CF0)
+                onClick = { showDialog = true },
+                containerColor = PrimaryColor
             ) {
-                Icon(Icons.Rounded.Add, contentDescription = null, tint = Color.White)
+                Icon(Icons.Rounded.Add, contentDescription = null, tint = SurfaceColor)
             }
         },
-        bottomBar = { VaultBottomBar() },
+        bottomBar = {
+            BottomNavigationBar(
+                selectedId = "vault",
+                onItemClick = onBottomNavClick
+            )
+        },
         contentWindowInsets = WindowInsets(0, 0, 0, 0)
     ) { paddingValues ->
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-
             SearchBar(
                 query = state.searchQuery,
                 onQueryChange = { onEvent(VaultEvent.SearchEntries(it)) }
@@ -90,12 +105,76 @@ fun VaultListScreen(
                     onEvent(VaultEvent.SortEntries(VaultEvent.SortType.BY_TITLE_ASC))
                 }
             )
-
-
-            
-
-
+            Text(
+                modifier = Modifier.padding(horizontal = 24.dp).padding(bottom = 16.dp),
+                text = stringResource(R.string.Recent),
+                style = PassVaultTypography.titleSmall,
+                color = TextSecondaryColor
+            )
+            if (state.vaults.isNotEmpty()) {
+                VaultItemList(
+                    vaults = state.vaults,
+                    onItemClick = onItemClick,
+                    onEyeClick = onEyeClick,
+                    onCopyClick = onCopyClick
+                )
+            }
         }
+    }
+
+    if (showDialog) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false },
+            title = { Text("Add Password") },
+            text = {
+                Column {
+                    OutlinedTextField(
+                        value = title,
+                        onValueChange = { title = it },
+                        label = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { username = it },
+                        label = { Text("Username / Email") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        label = { Text("Password") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (title.isNotBlank() && username.isNotBlank() && password.isNotBlank()) {
+                            onEvent(VaultEvent.AddEntry(
+                                appTitle = title,
+                                userName = username,
+                                password = password
+                            ))
+                            showDialog = false
+                            title = ""
+                            username = ""
+                            password = ""
+                        }
+                    }
+                ) {
+                    Text("Save")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDialog = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }
 
@@ -119,23 +198,15 @@ private fun TopBarVault() {
                     style = PassVaultTypography.bodyMedium,
                     color = TextSecondaryColor
                 )
-
                 Text(
                     text = stringResource(R.string.Hello) + (", BlogTriggers"),
-                    style = TextStyle(
-                        fontFamily = FontFamily.Default,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 24.sp,
-                        lineHeight = 32.sp,
-                        letterSpacing = 0.sp
-                    ),
+                    style = PassVaultTypography.headlineLarge,
                     color = TextPrimaryColor
                 )
             }
             Box(
                 modifier = Modifier.size(48.dp)
             ) {
-
                 Image(
                     painter = painterResource(R.drawable.user_avatar),
                     contentDescription = null,
@@ -149,7 +220,6 @@ private fun TopBarVault() {
                         .padding(1.dp)
                         .clip(CircleShape)
                 )
-
                 Box(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
@@ -179,8 +249,8 @@ fun SearchBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(70.dp), contentAlignment = Alignment.TopStart
-
+            .height(70.dp),
+        contentAlignment = Alignment.TopStart
     ) {
         Row(
             modifier = Modifier
@@ -219,9 +289,9 @@ fun SearchBar(
                     cursorColor = TextPrimaryColor
                 )
             )
-
             IconButton(
-                onClick = {}, modifier = Modifier
+                onClick = {},
+                modifier = Modifier
                     .size(44.dp)
                     .clip(CircleShape)
                     .border(
@@ -246,18 +316,16 @@ fun CategoriesRow(
     onCategorySelected: (String) -> Unit
 ) {
     val categories = listOf("All Passwords", "Work", "Finance", "Social")
-
     Box(
-     modifier = Modifier.height(34.dp)
+        modifier = Modifier.height(66.dp)
     ) {
-        Row(
+        LazyRow(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(start = 24.dp, end = 4.dp),
             horizontalArrangement = Arrangement.spacedBy(12.dp)
-
         ) {
-            categories.forEach { category ->
+            items(categories) { category ->
                 SortBlocks(
                     text = category,
                     isSelected = selectedCategory == category,
@@ -269,46 +337,97 @@ fun CategoriesRow(
 }
 
 @Composable
-private fun VaultBottomBar() {
-    NavigationBar {
+private fun VaultItemList(
+    vaults: List<PasswordCardUi>,
+    onItemClick: (PasswordCardUi) -> Unit,
+    onEyeClick: (PasswordCardUi) -> Unit,
+    onCopyClick: (PasswordCardUi) -> Unit
+) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(540.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        items(
+            items = vaults,
+            key = { it.id }
+        ) { item ->
+            PasswordCard(
+                item = item,
+                onItemClick = { onItemClick(item) },
+                onEyeClick = { onEyeClick(item) },
+                onCopyClick = { onCopyClick(item) }
+            )
+        }
+    }
+}
 
+@Composable
+fun VaultBottomBar() {
+    NavigationBar {
         NavigationBarItem(
             selected = false,
             onClick = {},
             icon = { Icon(Icons.Outlined.Home, null) },
-            label = { Text("Home") })
-
+            label = { Text("Home") }
+        )
         NavigationBarItem(
             selected = true,
             onClick = {},
             icon = { Icon(painter = painterResource(R.drawable.shield_google), null) },
-            label = { Text("Vault") })
-
+            label = { Text("Vault") }
+        )
         NavigationBarItem(
             selected = false,
             onClick = {},
             icon = { Icon(painter = painterResource(R.drawable.key_vertical_google), null) },
-            label = { Text("Generator") })
-
+            label = { Text("Generator") }
+        )
         NavigationBarItem(
             selected = false,
             onClick = {},
             icon = { Icon(painter = painterResource(R.drawable.security_google), null) },
-            label = { Text("Security") })
-
+            label = { Text("Security") }
+        )
         NavigationBarItem(
             selected = false,
             onClick = {},
             icon = { Icon(Icons.Outlined.Settings, null) },
-            label = { Text("Settings") })
+            label = { Text("Settings") }
+        )
     }
 }
 
-@Preview(showBackground = true, name = "Empty State")
+@Preview(showBackground = true, name = "With Items")
 @Composable
-private fun PreviewVaultListScreen_Empty() {
+private fun PreviewVaultListScreen_WithItems() {
+    val fakeVaults = listOf(
+        PasswordCardUi(
+            id = 1,
+            title = "Google",
+            subtitle = "blogtriggers@gmail.com",
+            password = "***",
+            isPasswordVisible = false
+        ),
+        PasswordCardUi(
+            id = 2,
+            title = "GitHub",
+            subtitle = "origami@gmail.com",
+            password = "***",
+            isPasswordVisible = false
+        ),
+        PasswordCardUi(
+            id = 3,
+            title = "Netflix",
+            subtitle = "user@netflix.com",
+            password = "***",
+            isPasswordVisible = false
+        )
+    )
+
     val fakeState = VaultListUiState(
-        vaults = emptyList(),
+        vaults = fakeVaults,
         isLoading = false,
         searchQuery = "",
         selectedCategory = "All Passwords"
@@ -318,7 +437,9 @@ private fun PreviewVaultListScreen_Empty() {
         state = fakeState,
         onEvent = {},
         onAddClick = {},
-        onItemClick = {}
+        onItemClick = {},
+        onEyeClick = {},
+        onCopyClick = {},
+        onBottomNavClick = {}
     )
 }
-

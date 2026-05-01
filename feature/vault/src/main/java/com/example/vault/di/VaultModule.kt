@@ -22,7 +22,6 @@ abstract class VaultModule {
         impl: VaultRepositoryImpl
     ): VaultRepository
 
-
     companion object {
         @Provides
         @Singleton

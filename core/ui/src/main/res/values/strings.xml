@@ -4,4 +4,5 @@
     <string name="Welcome">Welcome back,</string>
     <string name="Hello">Hello</string>
     <string name="tagline">Secure. Simple. Yours.</string>
+    <string name="Recent">RECENT ITEMS</string>
 </resources>

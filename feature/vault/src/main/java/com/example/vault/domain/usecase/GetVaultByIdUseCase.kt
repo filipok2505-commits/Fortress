@@ -10,6 +10,6 @@ class GetVaultByIdUseCase @Inject constructor(
     private val repository: VaultRepository
 ) {
     operator fun invoke(id: Long): Flow<Vault?> = flow {
-        emit( repository.getVaultById(id))
+        emit(repository.getVaultById(id))
     }
 }

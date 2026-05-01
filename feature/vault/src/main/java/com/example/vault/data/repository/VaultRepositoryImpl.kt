@@ -21,19 +21,18 @@ class VaultRepositoryImpl @Inject constructor(
 ) : VaultRepository {
 
     override fun getVaults(): Flow<List<Vault>> {
-        return vaultDao.getAllVaults()
-            .map { entities ->
-                entities.map { entity ->
-                    val decryptedBytes = cryptoRepository.decrypt(
-                        EncryptedData(
-                            encryptedBytes = entity.encryptedPassword,
-                            initializationVector = entity.initVector
-                        )
+        return vaultDao.getAllVaults().map { entities ->
+            entities.map { entity ->
+                val decryptedBytes = cryptoRepository.decrypt(
+                    EncryptedData(
+                        encryptedBytes = entity.encryptedPassword,
+                        initializationVector = entity.initVector
                     )
-                    val decryptedPassword = String(decryptedBytes)
-                    entity.toDomain(decryptedPassword)
-                }
+                )
+                val decryptedPassword = String(decryptedBytes)
+                entity.toDomain(decryptedPassword)
             }
+        }
     }
 
     override suspend fun getVaultById(id: Long): Vault? = withContext(dispatchers.io) {
@@ -41,8 +40,7 @@ class VaultRepositoryImpl @Inject constructor(
 
         val decryptedBytes = cryptoRepository.decrypt(
             EncryptedData(
-                encryptedBytes = entity.encryptedPassword,
-                initializationVector = entity.initVector
+                encryptedBytes = entity.encryptedPassword, initializationVector = entity.initVector
             )
         )
         val decryptedPassword = String(decryptedBytes)

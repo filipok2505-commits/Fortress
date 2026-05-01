@@ -13,11 +13,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.fortress.ui.theme.FortressTheme
 import com.example.vault.presentation.splashScreen.SplashScreen
+import com.example.vault.presentation.vaultList.VaultEvent
 
 import com.example.vault.presentation.vaultList.VaultListScreen
 import com.example.vault.presentation.vaultList.VaultListUiState
+import com.example.vault.presentation.vaultList.VaultListViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -27,6 +30,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             var showSplash by remember { mutableStateOf(true) }
+            
+            val viewModel: VaultListViewModel = hiltViewModel()
+            val state by viewModel.uiState.collectAsStateWithLifecycle()
 
             FortressTheme {
                 if (showSplash) {
@@ -36,32 +42,16 @@ class MainActivity : ComponentActivity() {
                     )
                 } else {
                     VaultListScreen(
-                        state = VaultListUiState(
-                            vaults = emptyList(),
-                            searchQuery = ""
-                        ),
-                        onEvent = {},
-                        onAddClick = {},
-                        onItemClick = {}
+                        state = state,  
+                        onEvent = viewModel::onEvent,
+                        onAddClick = { },
+                        onItemClick = { /* TODO */ },
+                        onEyeClick = { /* TODO */ },
+                        onCopyClick = { /* TODO */ },
+                        onBottomNavClick = { /* TODO */ }
                     )
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    FortressTheme {
-        Greeting("Android")
     }
 }
